@@ -74,7 +74,7 @@
                 		</div>
                 		
 	                	<div class="panel panel-default">
-	                			<div class="panel-heading"><i class="fa fa-history fa-fw"></i>   Latest Transactions</div>                       				 
+	                			<div class="panel-heading"><i class="fa fa-history fa-fw"></i>   Recent Sales Activity</div>                       				 
 	                			<div class="panel-body">
 			                		<div class="table-wrapper">
 					        		<table id="patients" class="display responsive nowrap selecttable" cellspacing="0" width="100%">

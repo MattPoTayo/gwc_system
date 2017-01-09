@@ -12,7 +12,7 @@
 		<?php require_once("../resource/sections/branch_banner.php"); ?>
 		<?php require_once("../resource/sections/branch_menu.php"); ?>
 		<div class="form_class_full">
-			<div class="form_title"><h3 class="page_title">WH Jewels Profile</h3></div>
+			<div class="form_title"><h3 class="page_title">System User Profile</h3></div>
 				<div>
 					<?php
 						require_once("../resource/database/hive.php");

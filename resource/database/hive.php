@@ -5,7 +5,7 @@
 		$DBHost = "localhost";
 		$SQLUsername = "root";
 		$SQLPassword = "121586";
-		$DBName = "wh_jewels";
+		$DBName = "gwc_db";
 		
 		$mysqli = new mysqli("$DBHost", "$SQLUsername", "$SQLPassword", "$DBName");
 	}

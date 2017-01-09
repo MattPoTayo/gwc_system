@@ -1,8 +1,8 @@
 <?php
 	$label1 = "Available Inventory";
-	$label2 = "Borrowed Inventory";
-	$label3 = "Total Value of Available Inventory";
-	$label4 = "Total Income This Month";
+	$label2 = "Daily Report";
+	$label3 = "Pending Transaction";
+	$label4 = "Create Sales";
 	
 	$value1 = mysqli_query($mysqli, "SELECT COUNT(*) FROM `inventory` WHERE `Mark` = 1");
 	$value1 = mysqli_fetch_row($value1); 
@@ -74,7 +74,7 @@
 						<i class="fa fa-check-square-o fa-4x" aria-hidden="true"></i>
 					</div>
 					<div class="col-xs-9 text-right">
-						<div class="huge">$ <? echo number_format($value3[0],2); ?></div>
+						<div class="huge"><? echo number_format($value3[0],2); ?></div>
 						<div><?php echo $label3; ?></div>
 					</div>
 				</div>
@@ -96,7 +96,7 @@
 						<i class="fa fa-money fa-4x"></i>
 					</div>
 					<div class="col-xs-9 text-right">
-						<div class="huge">&#8369 <? echo number_format($value4[0],2); ?></div>
+						<div class="huge"><? echo number_format($value4[0],2); ?></div>
 						<div><?php echo $label4; ?></div>
 					</div>
 				</div>

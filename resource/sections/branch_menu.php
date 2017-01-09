@@ -42,10 +42,10 @@
 				</li>
 			</ul>
 		</li>
-		<li <?php if($page_type==7) echo "class='active has-sub'"; else echo "class='has-sub'"; ?> ><a href='#'>Payments</a>
+		<li <?php if($page_type==7) echo "class='active has-sub'"; else echo "class='has-sub'"; ?> ><a href='#'>Supplier</a>
 			<ul>
-				<li><a href='payments.php'>Payments</a></li>
-				<li><a href='payments_new.php'>New Payment</a></li>
+				<li><a href='payments.php'>Supplier List</a></li>
+				<li><a href='payments_new.php'>New Supplier</a></li>
 			</ul>
 		</li>
 		<li <?php if($page_type==8) echo "class='active has-sub'"; else echo "class='has-sub'"; ?> ><a href='#'>User</a>

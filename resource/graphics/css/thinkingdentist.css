@@ -3,7 +3,7 @@ body
 	color:red;
 	width: 100%;
 	height: 400px;
-	background-image: url('../../images/login_cover.jpg');
+	background-image: url('../../images/gwc_bc.jpg');
 	background-size: cover;
 }
 
@@ -17,7 +17,7 @@ a
 
 .logo_font
 {
-	font-family: Pacifico;
+	font-family: arial;
 }
 
 .form-centered-login
@@ -30,7 +30,7 @@ a
 
 .form_title
 {
-	background:#212121;
+	background:#000000;
 	color:white;
 	text-align:center;
 	padding: 2px 0px 2px 0px;
@@ -55,7 +55,7 @@ a
 	width:100%;
 	height:40px;
 	text-align:center;
-	background:#212121;
+	background:#000000;
 	color:white;
 }
 

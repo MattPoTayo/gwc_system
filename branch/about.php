@@ -21,16 +21,16 @@
 			?>
 			<div class="col-lg-4">
                 		<div class="panel panel-default">
-                			<div class="panel-heading"><i class="fa fa-bell fa-fw"></i>   About WH Jewels Inventory System</div>                       				 
+                			<div class="panel-heading"><i class="fa fa-bell fa-fw"></i>   About GWC CRM and ASP System</div>                       				 
                 			<div class="panel-body">
-                                                <div id="main" style="width: 340px; height: 200px;background-position:center;background-repeat:no-repeat;background-image:url('../resource/images/wh_jewels_cover.png')">
+                                                <div id="main" style="height: 30%;background-position:center;background-repeat:no-repeat;background-image:url('../resource/images/Logo-small.png')">
 
                                                 </div>
-                				System Name: WH Jewels 1.0<br>
-                				System Version: 2.0.0<br>
-                				Date of Launch: N.A.<br>
-                				Last Day of Coding: November 4, 2016<br>
-                				Hosting Plan: Basic X<br>
+                				System Name: GWC System 1.0<br>
+                				System Version: 1.0.0<br>
+                				Date of Launch: N/A.<br>
+                				Last Day of Coding: N/A<br>
+                				Hosting Plan: N/A<br>
                 				System Developer: Engr. Matthew Tizon <br> 
                 				Team: Team Beta<br>
                 				Barcode System: Code128<br>
@@ -54,8 +54,8 @@
                 		<div class="panel panel-default">
                 			<div class="panel-heading"><i class="fa fa-bell fa-fw"></i>   Terms and Condition</div>                       				 
                 			<div class="panel-body">
-                				This system was first implemented by Tangent PH, later on tranfer all controls and privilages to client company <strong>WH JEWELS</strong>. All upcoming developments will be automatically credited to this company with proper turnover protocols from first provider.<br><br>
-                				Development can be monitored via git repository hosted <a href="https://github.com/MattPoTayo/wh_jewels" target="_blank">here</a>.
+                				This system was first implemented by a freelance developer, later on tranfer all controls and privilages to client company <strong>Gadget Works Corporation</strong>. All upcoming developments will be automatically credited to this company with proper turnover protocols from first provider.<br><br>
+                				Development can be monitored via git repository hosted <a href="https://github.com/MattPoTayo/gwc_system" target="_blank">here</a>.
                 			</div>
                 		</div>
                 	</div>

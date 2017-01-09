@@ -1,5 +1,5 @@
 <head>
-	<title><?php echo $page_name; ?> | WH Jewels&reg 1.0</title>
+	<title><?php echo $page_name; ?> | GWC System &reg 1.0</title>
 	
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
