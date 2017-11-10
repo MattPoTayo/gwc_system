@@ -6,8 +6,8 @@
 	$page_type = 7;
 ?>
 <html>
-	<?php require_once("../resource/sections/branch_header.php"); ?>
 	<link href="../resource/graphics/css/sb-admin-2.css" rel="stylesheet">
+	<?php require_once("../resource/sections/branch_header.php"); ?>
 	<body>
 		<?php require_once("../resource/sections/branch_banner.php"); ?>
 		<?php require_once("../resource/sections/branch_menu.php"); ?>
@@ -15,24 +15,35 @@
 			<div class="form_title"><h3 class="page_title">New Payment</h3></div>
 				<div>
 					<?php
-						require_once("../resource/database/hive.php");
-						
 						if($_POST)
 						{
+							require_once("../resource/database/hive.php");
+
 							$type = $mysqli->real_escape_string($_POST['type']);
 							$amount = $mysqli->real_escape_string($_POST['amount']);
 							$date = $time_now;
-							$cnum = $mysqli->real_escape_string($_POST['cnum']);
-							$cbank = $mysqli->real_escape_string($_POST['cbank']);
-							$cdate = $mysqli->real_escape_string($_POST['cdate']);
 							$client = $mysqli->real_escape_string($_POST['client']);
 							$sid = $mysqli->real_escape_string($_POST['sid']);
-							
+
 							date_default_timezone_set ('Asia/Taipei');
 							$date_today = date("Y-m-d H:i:s");
+							if($type == "1")
+							{
+								$cnum = '';
+								$cbank = '';
+								$cdate = '0000-00-00 00:00:00';
+							}
+							else if ($type == "2")
+							{
+								$cnum = $mysqli->real_escape_string($_POST['cnum']);
+								$cbank = $mysqli->real_escape_string($_POST['cbank']);
+								$cdate = $mysqli->real_escape_string($_POST['cdate']);
+							}	
+											
 							
 							if(!is_numeric($amount))
 							{
+								
 								echo "<p class='ffail'>Amount should be a number!</p>";	
 							}	
 							else if($amount == "" or $client == 0)
@@ -41,17 +52,31 @@
 							}
 							else
 							{
-								$new = mysqli_query($mysqli, "INSERT INTO `payment`(`ID`, `Type`, `Date`, `Amount`, `CBank`, `CDate`, `Client`, `SID`, `Mark`, `CNum`) 
-											     VALUES ('', '$type', '$date', '$amount', '$cbank', '$cdate', '$client', '$sid', 1, '$cnum')");
+								$sqlquery =  "INSERT INTO `payment`(`Type`, `Date`, `Amount`, `CBank`, `CDate`, `Client`, `SID`, `Mark`, `CNum`) 
+											     VALUES ('$type', '$date', '$amount', '$cbank', '$cdate', '$client', '$sid', 1, '$cnum')";
+								$new = mysqli_query($mysqli, $sqlquery);
 											      
-								if($new) $_SESSION['success'] = "Successfully added new payment. Click <a href='payment_new.php'>here</a> to add another one.";
+								if($new) $_SESSION['success'] = "Successfully added new payment. Click <a href='payments_new.php'>here</a> to add another one.";
 								else $_SESSION['fail'] = "Oops, something went wrong. If error persists, please contact support.";
 								
 								ob_end_clean();
 								header("location:payments.php");
 							}
 						}
+						else
+						{
+							$type = "";
+							$amount = "";
+							$date = $time_now;
+							$cnum = "";
+							$cbank = "";
+							$cdate = $time_now;
+							$client = "";
+							$sid ="";
+						}
+
 					?>
+
 				</div>
 				<div class="form_content">
 					<form class="form-horizontal" method=post action="<?php echo $_SERVER['PHP_SELF'];?>">
@@ -68,14 +93,14 @@
 						<div class="form-group">
 							<div class="col-sm-12">
 								<label for="amount">Amount*</label>
-								<input name="amount" type="text" class="form-control" placeholder="Amount" value=<?php echo "'".$amount."'"; ?>>
+								<input name="amount" type="number"  step=".01" class="form-control" placeholder=0 value=<?php echo "'".$amount."'"; ?>>
 							</div>
 						</div>
 						
 						<div class="form-group">
 							<div class="col-sm-12">
 								<label for="cnum">Check Number*</label>
-								<input name="amount" type="text" class="form-control" placeholder="Check Number" value=<?php echo "'".$cnum."'"; ?>>
+								<input name="cnum" type="text" class="form-control" placeholder="Check Number" value=<?php echo "'".$cnum."'"; ?>>
 							</div>
 						</div>
 						

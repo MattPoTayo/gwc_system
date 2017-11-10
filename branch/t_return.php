@@ -15,7 +15,7 @@
 			if(!isset($_SESSION['return']))
 			{
 				$creator = $_SESSION['id'];
-				$new = mysqli_query($mysqli, "INSERT INTO `transaction`(`ID`, `Reference`, `Source`, `Destination`, `Comment`, `Date`, `Mark`, `Creator`, `Type`) VALUES ('', '', '2', '100', '', '$time_now', '2', '$creator', 4)");
+				$new = mysqli_query($mysqli, "INSERT INTO `transaction`(`Reference`, `Source`, `Destination`, `Comment`, `Date`, `Mark`, `Creator`, `Type`) VALUES ('', '2', '100', '', '$time_now', '2', '$creator', 4)");
 				$_SESSION['return'] = $mysqli->insert_id;
 				$sid = $_SESSION['return'];
 			}
@@ -80,7 +80,7 @@
 				{
 					unset($_SESSION['return']);
 					ob_end_clean();
-					header("location:receipt.php?id=".$sid);
+					header("location:pdf-receipt.php?id=".$sid);
 				}
 				else
 				{
@@ -105,6 +105,11 @@
 				$update_payments = mysqli_query($mysqli, "UPDATE payment SET Client = '$source' WHERE SID = '$sid'"); 
 				$_SESSION['success'] = "Successfully updated receipt details.";
 			}
+			else
+			{
+				$reference = mysqli_query($mysqli, "SELECT `Reference` FROM `transaction` WHERE `ID` = '$sid'");
+				$reference = mysqli_fetch_row($reference); $reference = $reference[0];
+			}
 			
 			//Add Item
 			if(isset($_POST['inventory']))
@@ -114,7 +119,7 @@
 				
 				//Transaction Type: 1-buy, 2-borrow, 3-sell, 4-return
 				//Mark: 1- available, 2- on transaction, 3-sold, 4-borrowed
-				$add_cart = mysqli_query($mysqli, "INSERT INTO `particular`(`ID`, `Transaction`, `Inventory`, `Type`, `Amount`, `Mark`) VALUES ('', '$sid', '$inventory', '4', '$price', 2)");
+				$add_cart = mysqli_query($mysqli, "INSERT INTO `particular`(`Transaction`, `Inventory`, `Type`, `Amount`, `Mark`) VALUES ('$sid', '$inventory', '4', '$price', 2)");
 				$update_inventory = mysqli_query($mysqli, "UPDATE inventory SET Mark = 2 WHERE ID = '$inventory'");
 				
 				$_SESSION['success'] = "Successfully added new item.";
@@ -128,9 +133,13 @@
 				$cnum = $mysqli->real_escape_string($_POST['cnum']);
 				$cbank = $mysqli->real_escape_string($_POST['cbank']);
 				$cdate = $mysqli->real_escape_string($_POST['cdate']);
+				if($cdate == '' || $cdate == ' ' || $cdate == Null || is_null($cdate))
+					$cdate = '0000-00-00 00:00:00';
 				
-				$add_pay  = mysqli_query($mysqli, "INSERT INTO `payment`(`ID`, `Type`, `Date`, `Amount`, `CBank`, `CDate`, `Client`, `SID`, `Mark`, `CNum`) 
-								   VALUES ('', '$ptype', '$time_now', '$amount', '$cbank', '$cdate', '$client', '$sid', '2', '$cnum')");
+				$sqlqueryp = "INSERT INTO `payment`(`Type`, `Date`, `Amount`, `CBank`, `CDate`, `Client`, `SID`, `Mark`, `CNum`) 
+								   VALUES ('$ptype', '$time_now', '$amount', '$cbank', '$cdate', '$source', '$sid', '2', '$cnum')";
+				$add_pay  = mysqli_query($mysqli, $sqlqueryp);
+				echo $sqlqueryp;
 				
 				if($add_pay) $_SESSION['success'] = "Successfully added payment.";
 			}
@@ -140,7 +149,7 @@
 			<div class="row">
 				<div class="col-sm-4">
 					<h3>Return Transaction</h3>
-					h5>SID No. <?php echo sprintf('%05d', $sid); ?></h5>
+					<h5>SID No. <?php echo sprintf('%05d', $sid); ?></h5>
 					<div class="messages">
 						<?php
 							if(isset($_SESSION['success'])) { echo "<p class='fsuccess'>".$_SESSION['success']."</p>"; unset($_SESSION['success']); }
@@ -207,7 +216,8 @@
 					<form method=post action="<?php echo $_SERVER['PHP_SELF'];?>" >
 			        	<table class="table table-bordered table-stripped" style="font-size:12px;width:100%">
 					<?php
-						$result = mysqli_query($mysqli, "SELECT inventory.ID, Name, Category, Description, Weight, Amount FROM particular, inventory WHERE particular.Transaction = '$sid' AND inventory.ID = particular.Inventory AND particular.Mark > 0");
+						$sqlquery = "SELECT inventory.ID, Name, Category, Description, Weight, Amount FROM particular, inventory WHERE particular.Transaction = '$sid' AND inventory.ID = particular.Inventory AND particular.Mark > 0";
+						$result = mysqli_query($mysqli, $sqlquery);
 						
 						echo '<thead>';
 						echo '<tr style="text-align:center;font-weight:bold;background:black;color:white">';

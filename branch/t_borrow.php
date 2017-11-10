@@ -16,14 +16,14 @@
 			if(!isset($_SESSION['borrow']))
 			{
 				$creator = $_SESSION['id'];
-				$new = mysqli_query($mysqli, "INSERT INTO `transaction`(`ID`, `Reference`, `Source`, `Destination`, `Comment`, `Date`, `Mark`, `Creator`, `Type`) VALUES ('', '', '100', '2', '', '$time_now', '2', '$creator', 2)");
+				$new = mysqli_query($mysqli, "INSERT INTO `transaction`( `Reference`, `Source`, `Destination`, `Comment`, `Date`, `Mark`, `Creator`, `Type`) VALUES ('', '100', '2', '', '$time_now', '2', '$creator', 2)");
 				$_SESSION['borrow'] = $mysqli->insert_id;
 				$sid = $_SESSION['borrow'];
 			}
 			else
 			{
 				$sid = $_SESSION['borrow'];		
-				
+
 				$destination = mysqli_query($mysqli, "SELECT `Destination` FROM transaction WHERE ID = '$sid'");
 				$destination = mysqli_fetch_row($destination); $destination = $destination[0];
 				
@@ -74,13 +74,18 @@
 			
 			if(isset($_GET['finalize']))
 			{			
-				$finalize = mysqli_query($mysqli, "UPDATE particular, inventory, transaction SET transaction.Mark = 1, particular.Mark = 1, inventory.Mark = 4 WHERE transaction.ID = $sid AND particular.Transaction = $sid AND particular.Inventory = inventory.ID AND inventory.Mark > 0 AND particular.Mark > 0");
-				$finalize_payments = mysqli_query($mysqli, "UPDATE payment SET Mark = 1 WHERE Mark = 2 AND SID = '$sid'");
+				$sqlquery1 = "UPDATE particular, inventory, transaction SET transaction.Mark = 1, particular.Mark = 1, inventory.Mark = 4 WHERE transaction.ID = $sid AND particular.Transaction = $sid AND particular.Inventory = inventory.ID AND inventory.Mark > 0 AND particular.Mark > 0";
+				echo $sqlquery1;
+				$sqlquery2 =  "UPDATE payment SET Mark = 1 WHERE Mark = 2 AND SID = '$sid'";
+				echo $sqlquery2;
+				$finalize = mysqli_query($mysqli, $sqlquery1);
+				$finalize_payments = mysqli_query($mysqli, $sqlquery2);;
 				if($finalize and $finalize_payments)
 				{
+					#$_SESSION['success'] = "SUCCESS";
 					unset($_SESSION['borrow']);
 					ob_end_clean();
-					header("location:receipt.php?id=".$sid);
+					header("location:pdf-receipt.php?id=".$sid);
 				}
 				else
 				{
@@ -105,6 +110,11 @@
 				$update_payments = mysqli_query($mysqli, "UPDATE payment SET Client = '$destination' WHERE SID = '$sid'"); 
 				$_SESSION['success'] = "Successfully updated receipt details.";
 			}
+			else
+			{
+				$reference = mysqli_query($mysqli, "SELECT `Reference` FROM `transaction` WHERE `ID` = '$sid'");
+				$reference = mysqli_fetch_row($reference); $reference = $reference[0];
+			}
 			
 			//Add Item
 			if(isset($_POST['inventory']))
@@ -113,7 +123,7 @@
 				$price = $mysqli->real_escape_string($_POST['price']);
 				
 				//Transaction Type: 1-buy, 2-borrow, 3-sell
-				$add_cart = mysqli_query($mysqli, "INSERT INTO `particular`(`ID`, `Transaction`, `Inventory`, `Type`, `Amount`, `Mark`) VALUES ('', '$sid', '$inventory', '2', '$price', 2)");
+				$add_cart = mysqli_query($mysqli, "INSERT INTO `particular`(`Transaction`, `Inventory`, `Type`, `Amount`, `Mark`) VALUES ('$sid', '$inventory', '2', '$price', 2)");
 				$update_inventory = mysqli_query($mysqli, "UPDATE inventory SET Mark = 2 WHERE ID = '$inventory'");
 				
 				$_SESSION['success'] = "Successfully added new item.";
@@ -126,10 +136,13 @@
 				$amount = $mysqli->real_escape_string($_POST['amount']);
 				$cbank = $mysqli->real_escape_string($_POST['cbank']);
 				$cdate = $mysqli->real_escape_string($_POST['cdate']);
-				
-				$add_pay  = mysqli_query($mysqli, "INSERT INTO `payment`(`ID`, `Type`, `Date`, `Amount`, `CBank`, `CDate`, `Client`, `SID`, `Mark`) 
-								   VALUES ('', '$ptype', '$time_now', '$amount', '$cbank', '$cdate', '$client', '$sid', '2')");
-				
+				$cnum = $mysqli->real_escape_string($_POST['cnum']);
+				if($cdate == '' || $cdate == ' ' || $cdate == Null || is_null($cdate))
+					$cdate = '0000-00-00 00:00:00';
+				$sqlquery = "INSERT INTO `payment`(`Type`, `Date`, `Amount`, `CBank`, `CDate`, `Client`, `SID`, `Mark`, `CNum`) 
+								   VALUES ('$ptype', '$time_now', '$amount', '$cbank', '$cdate', '0', '$sid', '2', '$cnum')";
+				$add_pay  = mysqli_query($mysqli, $sqlquery );
+				#echo $sqlquery;
 				if($add_pay) $_SESSION['success'] = "Successfully added payment.";
 			}
 		?>	
@@ -296,7 +309,9 @@
 					<form method=post action="<?php echo $_SERVER['PHP_SELF'];?>" >
 			        	<table class="table table-bordered table-stripped" style="font-size:12px;width:100%">
 					<?php
-						$result = mysqli_query($mysqli, "SELECT * FROM payment WHERE `SID` = '$sid' AND Mark >= 1");
+						$sqlquery = "SELECT * FROM payment WHERE `SID` = '$sid' AND Mark >= 1";
+						$result = mysqli_query($mysqli, $sqlquery);
+						#echo $sqlquery;
 						
 						echo '<thead>';
 						echo '<tr style="text-align:center;font-weight:bold;background:black;color:white">';

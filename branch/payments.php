@@ -37,82 +37,84 @@
 			    });
 	            })
 	        </script>		
-		
-		<div>
-			<div class="row" style="margin-left:1px;">
-				<h3>Payments</h3>
-				<div class="messages">
-					<?php
-						if(isset($_SESSION['success'])) { echo "<p class='fsuccess'>".$_SESSION['success']."</p>"; unset($_SESSION['success']); }
-						else if(isset($_SESSION['fail'])) { echo "<p class='ffail'>".$_SESSION['fail']."</p>"; unset($_SESSION['fail']); }
-					?>
+		<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">
+		<?php require_once("../resource/sections/branch_shortcuts.php"); ?>
+			<div>
+				<div class="row" style="margin-left:1px;">
+					<div class="panel-heading"><svg class="glyph stroked table"><use xlink:href="#stroked-table"/></svg>   PAYMENTS</div>
+					<div class="messages">
+						<?php
+							if(isset($_SESSION['success'])) { echo "<p class='fsuccess'>".$_SESSION['success']."</p>"; unset($_SESSION['success']); }
+							else if(isset($_SESSION['fail'])) { echo "<p class='ffail'>".$_SESSION['fail']."</p>"; unset($_SESSION['fail']); }
+						?>
+					</div>
 				</div>
-			</div>
-			<div class="table-wrapper">
-		        	<table id="patients" class="display responsive nowrap selecttable" cellspacing="0" width="100%">
-					<?php
-						require_once("../resource/database/hive.php");
+				<div class="table-wrapper">
+			        	<table id="patients" class="display responsive nowrap selecttable" cellspacing="0" width="100%">
+						<?php
+							require_once("../resource/database/hive.php");
+							
+							$result = mysqli_query($mysqli, "SELECT `ID`, `Type`, `Date`, `Amount`, `CBank`, `CDate`, (SELECT Name FROM entity WHERE entity.ID = `Client`), `Mark`, `SID` FROM payment WHERE Mark = 1");
 						
-						$result = mysqli_query($mysqli, "SELECT `ID`, `Type`, `Date`, `Amount`, `CBank`, `CDate`, (SELECT Name FROM entity WHERE entity.ID = `Client`), `Mark`, `SID` FROM payment WHERE Mark = 1");
-					
-						echo '<thead>';
-						echo '<tr style="text-align:center;font-weight:bold;">';
-						echo '<th style="width:8%;text-align:center;" data-priority="1">PID</th>';
-						echo '<th style="width:10%;text-align:center;" data-priority="2">Type</th>';
-						echo '<th style="width:10%;text-align:center;" data-priority="3">Date</th>';
-						echo '<th style="width:10%;text-align:center;" data-priority="4">Amount</th>';
-						echo '<th style="width:10%;text-align:center;" data-priority="4">Check Number</th>';
-						echo '<th style="width:10%;text-align:center;" data-priority="5">Check Bank</th>';
-						echo '<th style="width:10%;text-align:center;" data-priority="6">Check Date</th>';
-						echo '<th style="width:10%;text-align:center;" data-priority="7">Client</th>';
-						echo '<th style="width:10%;text-align:center;" data-priority="9">Receipt (SID)</th>';
-						echo '<th style="width:10%;text-align:center;" data-priority="8">Action</th>';
-						echo '</tr></thead><tbody>';
-					
-						for($i=0; $i < mysqli_num_rows($result); $i++)
-						{	
-							echo '<tr style="text-align:center;">';
-							$result->data_seek($i);
-			    				$row = $result->fetch_row();
-			    				
-			    				//ID
-							echo '<td>'.sprintf('%05d', $row[0]).'</td>';
-							
-							//Type
-							if($row[1] == 1) echo "<td>Cash</td>";
-							else if($row[1] == 2) echo "<td>Check</td>";
+							echo '<thead>';
+							echo '<tr style="text-align:center;font-weight:bold;">';
+							echo '<th style="width:8%;text-align:center;" data-priority="1">PID</th>';
+							echo '<th style="width:10%;text-align:center;" data-priority="2">Type</th>';
+							echo '<th style="width:10%;text-align:center;" data-priority="3">Date</th>';
+							echo '<th style="width:10%;text-align:center;" data-priority="4">Amount</th>';
+							echo '<th style="width:10%;text-align:center;" data-priority="4">Check Number</th>';
+							echo '<th style="width:10%;text-align:center;" data-priority="5">Check Bank</th>';
+							echo '<th style="width:10%;text-align:center;" data-priority="6">Check Date</th>';
+							echo '<th style="width:10%;text-align:center;" data-priority="7">Client</th>';
+							echo '<th style="width:10%;text-align:center;" data-priority="9">Receipt (SID)</th>';
+							echo '<th style="width:10%;text-align:center;" data-priority="8">Action</th>';
+							echo '</tr></thead><tbody>';
 						
-							//Date
-							echo '<td>'.date("M d, Y h:i A", strtotime($row[2])).'</td>';
+							for($i=0; $i < mysqli_num_rows($result); $i++)
+							{	
+								echo '<tr style="text-align:center;">';
+								$result->data_seek($i);
+				    				$row = $result->fetch_row();
+				    				
+				    				//ID
+								echo '<td>'.sprintf('%05d', $row[0]).'</td>';
+								
+								//Type
+								if($row[1] == 1) echo "<td>Cash</td>";
+								else if($row[1] == 2) echo "<td>Check</td>";
 							
-							//Amount
-							echo '<td>'.number_format($row[3],2).'</td>';
-							
-							//CNum
-							echo '<td>'.ucwords(strtolower($row[9])).'</td>';
-							
-							//CBank
-							echo '<td>'.ucwords(strtolower($row[4])).'</td>';
-							
-							//Date
-							if($row[5] != "0000-00-00 00:00:00") echo '<td>'.date("F d, Y", strtotime($row[5])).'</td>';
-							else echo "<td>&nbsp</td>";
-							
-							//Client
-							echo '<td>'.ucwords(strtolower($row[6])).'</td>';
-							
-							//Receipt
-							echo '<td><a href="receipt.php?id='.$row[8].'" target="_blank">'.sprintf('%05d', $row[8]).'</a></td>';
-							
-							//Actions
-							echo '<td><a href="payments.php?delete='.$row[0].'"><i class="fa fa-times-o" aria-hidden="true"></i> Delete</a></td>';
-							
-							echo '</tr>';
-						}
-					?>
-					</tbody>
-				</table>
-			</div>
-		</div>			
+								//Date
+								echo '<td>'.date("M d, Y h:i A", strtotime($row[2])).'</td>';
+								
+								//Amount
+								echo '<td>'.number_format($row[3],2).'</td>';
+								
+								//CNum
+								echo '<td>'.ucwords(strtolower($row[5])).'</td>';
+								
+								//CBank
+								echo '<td>'.ucwords(strtolower($row[4])).'</td>';
+								
+								//Date
+								if($row[5] != "0000-00-00 00:00:00") echo '<td>'.date("F d, Y", strtotime($row[5])).'</td>';
+								else echo "<td>&nbsp</td>";
+								
+								//Client
+								echo '<td>'.ucwords(strtolower($row[6])).'</td>';
+								
+								//Receipt
+								echo '<td><a href="pdf-receipt.php?id='.$row[8].'" target="_blank">'.sprintf('%05d', $row[8]).'</a></td>';
+								
+								//Actions
+								echo '<td><a href="payments.php?delete='.$row[0].'"><i class="fa fa-times-o" aria-hidden="true"></i> Delete</a></td>';
+								
+								echo '</tr>';
+							}
+						?>
+						</tbody>
+					</table>
+				</div>
+			</div>	
+		</div>		
 	</body>
 </html>

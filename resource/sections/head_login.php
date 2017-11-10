@@ -1,9 +1,9 @@
 <head>
-	<title><?php echo $page_name; ?> | GWC System &reg 1.0</title>
+	<title><?php echo $page_name; ?> | GWC System&reg 1.0</title>
 	
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta name="description" content="Thinking Dentist 1.0 WH Jewels Dental Records Management System">
+	<meta name="description" content="Thinking Dentist 1.0 GWC Records Management System">
 	<meta name="author" content="MattPoTayo">
 	
 	<!-- BOOTSTRAP -->
@@ -11,6 +11,9 @@
 	<link href="resource/graphics/font-awesome/css/font-awesome.min.css" rel="stylesheet">
 	
 	<!-- myCSS -->
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/datepicker3.css" rel="stylesheet">
+	<link href="css/styles.css" rel="stylesheet">
   	<link href="resource/graphics/css/thinkingdentist.css" rel="stylesheet">
   	
 	<!-- jQuery -->

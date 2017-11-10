@@ -15,7 +15,7 @@
 			if(!isset($_SESSION['release']))
 			{
 				$creator = $_SESSION['id'];
-				$new = mysqli_query($mysqli, "INSERT INTO `transaction`(`ID`, `Reference`, `Source`, `Destination`, `Comment`, `Date`, `Mark`, `Creator`, `Type`) VALUES ('', '', '100', '2', '', '$time_now', '2', '$creator', 6)");
+				$new = mysqli_query($mysqli, "INSERT INTO `transaction`(`Reference`, `Source`, `Destination`, `Comment`, `Date`, `Mark`, `Creator`, `Type`) VALUES ('', '100', '2', '', '$time_now', '2', '$creator', 6)");
 				$_SESSION['release'] = $mysqli->insert_id;
 				$sid = $_SESSION['release'];
 			}
@@ -67,7 +67,7 @@
 				{
 					unset($_SESSION['release']);
 					ob_end_clean();
-					header("location:receipt.php?id=".$sid);
+					header("location:pdf-receipt.php?id=".$sid);
 				}
 				else
 				{
@@ -104,7 +104,11 @@
 				$update_payments = mysqli_query($mysqli, "UPDATE payment SET Client = '$destination' WHERE SID = '$sid'"); 
 				$_SESSION['success'] = "Successfully updated receipt details.";
 			}
-			
+			else
+			{
+				$reference = mysqli_query($mysqli, "SELECT `Reference` FROM `transaction` WHERE `ID` = '$sid'");
+				$reference = mysqli_fetch_row($reference); $reference = $reference[0];
+			}
 			//Add Item
 			if(isset($_POST['inventory']))
 			{
@@ -113,7 +117,7 @@
 				
 				//Transaction Type: 1-buy, 2-borrow, 3-sell, 4-release
 				//Mark: 1- available, 2- on transaction, 3-sold, 4-borrowed
-				$add_cart = mysqli_query($mysqli, "INSERT INTO `particular`(`ID`, `Transaction`, `Inventory`, `Type`, `Amount`, `Mark`) VALUES ('', '$sid', '$inventory', '6', '$price', 2)");
+				$add_cart = mysqli_query($mysqli, "INSERT INTO `particular`(`Transaction`, `Inventory`, `Type`, `Amount`, `Mark`) VALUES ('$sid', '$inventory', '6', '$price', 2)");
 				$update_inventory = mysqli_query($mysqli, "UPDATE inventory SET Mark = 2 WHERE ID = '$inventory'");
 				
 				$_SESSION['success'] = "Successfully added new item.";
@@ -126,9 +130,11 @@
 				$amount = $mysqli->real_escape_string($_POST['amount']);
 				$cbank = $mysqli->real_escape_string($_POST['cbank']);
 				$cdate = $mysqli->real_escape_string($_POST['cdate']);
+				if($cdate == '' || $cdate == " " || is_null($cdate))
+					$cdate = '0000-00-00 00:00:00';
 				
-				$add_pay  = mysqli_query($mysqli, "INSERT INTO `payment`(`ID`, `Type`, `Date`, `Amount`, `CBank`, `CDate`, `Client`, `SID`, `Mark`) 
-								   VALUES ('', '$ptype', '$time_now', '$amount', '$cbank', '$cdate', '$destination', '$sid', '2')");
+				$add_pay  = mysqli_query($mysqli, "INSERT INTO `payment`( `Type`, `Date`, `Amount`, `CBank`, `CDate`, `Client`, `SID`, `Mark`) 
+								   VALUES ('$ptype', '$time_now', '$amount', '$cbank', '$cdate', '$destination', '$sid', '2')");
 				
 				if($add_pay) $_SESSION['success'] = "Successfully added payment.";
 			}
