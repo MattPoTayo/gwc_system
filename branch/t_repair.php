@@ -15,7 +15,9 @@
 			if(!isset($_SESSION['repair']))
 			{
 				$creator = $_SESSION['id'];
-				$new = mysqli_query($mysqli, "INSERT INTO `transaction`(`ID`, `Reference`, `Source`, `Destination`, `Comment`, `Date`, `Mark`, `Creator`, `Type`) VALUES ('', '', '2', '100', '', '$time_now', '2', '$creator', 5)");
+				$sqlquery = "INSERT INTO `transaction`(`Reference`, `Source`, `Destination`, `Comment`, `Date`, `Mark`, `Creator`, `Type`) VALUES ('','2', '100', '', '$time_now', '2', '$creator', 5)";
+				$new = mysqli_query($mysqli, $sqlquery);
+				#echo $sqlquery;
 				$_SESSION['repair'] = $mysqli->insert_id;
 				$sid = $_SESSION['repair'];
 			}
@@ -79,7 +81,7 @@
 				{
 					unset($_SESSION['repair']);
 					ob_end_clean();
-					header("location:receipt.php?id=".$sid);
+					header("location:pdf-receipt.php?id=".$sid);
 				}
 				else
 				{
@@ -101,10 +103,14 @@
 				$reference = $mysqli->real_escape_string($_POST['reference']);
 				$comment = $mysqli->real_escape_string($_POST['comment']);
 				$update = mysqli_query($mysqli, "UPDATE `transaction` SET Source = '$source', `Reference` = '$reference', `Comment` = '$comment' WHERE `ID` = '$sid'");
-				$update_payments = mysqli_query($mysqli, "UPDATE payment SET Client = '$client' WHERE SID = '$sid'"); 
+				$update_payments = mysqli_query($mysqli, "UPDATE payment SET Client = '$source' WHERE SID = '$sid'"); 
 				$_SESSION['success'] = "Successfully updated receipt details.";
 			}
-			
+			else
+			{
+				$reference = mysqli_query($mysqli, "SELECT `Reference` FROM `transaction` WHERE `ID` = '$sid'");
+				$reference = mysqli_fetch_row($reference); $reference = $reference[0];
+			}
 			//Add Item
 			if(isset($_POST['name']))
 			{
@@ -113,13 +119,18 @@
 				$description = $mysqli->real_escape_string($_POST['description']);
 				$weight = $mysqli->real_escape_string($_POST['weight']);
 				$price= $mysqli->real_escape_string($_POST['price']);
+				$purchasecode= $mysqli->real_escape_string($_POST['purchasecode']);
 				//$imagetmp=addslashes (file_get_contents($_FILES['img']['tmp_name']));
 				$tmp_name = $_FILES['img']['tmp_name'];
-				$newInventory = mysqli_query($mysqli, "INSERT INTO `inventory`(`ID`, `Name`, `Category`, `Subcategory`, `Description`, `Weight`, `Buy`, `Sell`, `Mark`) VALUES ('', '$name', '$category', '', '$description', '$weight', '$price', '', '2')");
+				$sqlquery1 = "INSERT INTO `inventory`(`Name`, `Category`, `Subcategory`, `Description`, `Weight`, `Buy`, `Sell`, `Mark`, `Code`) VALUES ('$name', '$category', '', '$description', '$weight', '$price', '0', '2', '$$purchasecode')";
+				$newInventory = mysqli_query($mysqli, $sqlquery1);	
 				$new_inventory = $mysqli->insert_id;
 
 				move_uploaded_file($tmp_name, "../resource/images/inv_image/$new_inventory.png");
-				$newConnection = mysqli_query($mysqli, "INSERT INTO `particular`(`ID`, `Transaction`, `Inventory`, `Type`, `Amount`, `Mark`) VALUES ('', '$sid', '$new_inventory', '5', '$price', 2)");
+				$sqlquery2 =  "INSERT INTO `particular`(`Transaction`, `Inventory`, `Type`, `Amount`, `Mark`) VALUES ('$sid', '$new_inventory', '5', '$price', 2)";
+				$newConnection = mysqli_query($mysqli, $sqlquery2);
+				#echo $sqlquery1;
+				#	echo $sqlquery2;
 			
 				$_SESSION['success'] = "Successfully added new item.";
 			}
@@ -131,10 +142,13 @@
 				$amount = $mysqli->real_escape_string($_POST['amount']);
 				$cbank = $mysqli->real_escape_string($_POST['cbank']);
 				$cdate = $mysqli->real_escape_string($_POST['cdate']);
+				if($cdate == '' || $cdate == " " || is_null($cdate))
+					$cdate = '0000-00-00 00:00:00';
 				
-				$add_pay  = mysqli_query($mysqli, "INSERT INTO `payment`(`ID`, `Type`, `Date`, `Amount`, `CBank`, `CDate`, `Client`, `SID`, `Mark`) 
-								   VALUES ('', '$ptype', '$time_now', '$amount', '$cbank', '$cdate', '$source', '$sid', '2')");
-				
+				$sqlquery3 = "INSERT INTO `payment`(`Type`, `Date`, `Amount`, `CBank`, `CDate`, `Client`, `SID`, `Mark`) 
+								   VALUES ('$ptype', '$time_now', '$amount', '$cbank', '$cdate', '$source', '$sid', '2')";
+				$add_pay  = mysqli_query($mysqli, $sqlquery3);
+				#echo $sqlquery3;
 				if($add_pay) $_SESSION['success'] = "Successfully added payment.";
 			}
 		?>	
@@ -238,9 +252,14 @@
 										<input type="file" name="img" class="form-control" >
 									</div>
 									
-									<div class="col-sm-7">
+									<div class="col-sm-3">
 										<label for="description" class="control-label">Description</label>
 										<input type="text" name="description" class="form-control" <?php if(isset($description)) echo "value='".$description."'"; ?> >
+									</div>
+
+									<div class="col-sm-3">
+										<label for="purchasecode" class="control-label">Purchase Code</label>
+										<input type="text" name="purchasecode" class="form-control" <?php if(isset($purchasecode)) echo "value='".$purchasecode."'"; ?> >
 									</div>
 									
 								
@@ -257,13 +276,14 @@
 				<div class="selecttable" style="width:98%;margin-left:1%">
 			        	<table class="table table-bordered table-stripped" style="font-size:12px;width:100%">
 					<?php
-						$result = mysqli_query($mysqli, "SELECT inventory.ID, Name, Category, Description, Weight, Amount FROM particular, inventory WHERE particular.Transaction = '$sid' AND inventory.ID = particular.Inventory AND particular.Mark > 0");
+						$result = mysqli_query($mysqli, "SELECT inventory.ID, Name, Category, Description, Weight, Amount, Code FROM particular, inventory WHERE particular.Transaction = '$sid' AND inventory.ID = particular.Inventory AND particular.Mark > 0");
 						
 						echo '<thead>';
 						echo '<tr style="text-align:center;font-weight:bold;background:black;color:white">';
 						echo '<th style="width:8%;text-align:center">Picture</th>';
 						echo '<th style="width:8%;text-align:center">iID</th>';
 						echo '<th style="width:20%;text-align:center">Name</th>';
+						echo '<th style="width:20%;text-align:center">Purchase Code</th>';
 						echo '<th style="width:15%;text-align:center">Category</th>';
 						echo '<th style="width:25%;text-align:center">Description</th>';
 						echo '<th style="width:8%;text-align:center">Weight</th>';
@@ -287,6 +307,9 @@
 							
 							//Name
 							echo '<td>'.ucwords(strtolower($row[1])).'</td>';
+
+							//Puchase Code
+							echo '<td>'.$row[6].'</td>';
 							
 							//Category
 							echo '<td>'.ucwords(strtolower($row[2])).'</td>';

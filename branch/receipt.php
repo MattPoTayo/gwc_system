@@ -1,12 +1,14 @@
 <?php 
-	require_once("verify_access.php");
+	#require_once("verify_access.php");
 	require_once("../resource/database/hive.php");
 	$conversion = 49;
 	
 	if(isset($_GET['id']))
 	{
-		$userID	= $_SESSION['id'];
-		$userBranch = 100;
+		#$userID	= $_SESSION['id'];
+		$config = mysqli_query($mysqli, "SELECT `value` FROM `config` WHERE `particular`='branchid'");
+		$config = mysqli_fetch_row($config); $config = $config[0];
+		$userBranch = $config;
 		$creation = $_GET['id'];
 		
 		//Check Receipt Integrity
@@ -33,7 +35,7 @@
 			$source = $source_query->fetch_assoc();
 			
 			//Branch Details
-			$branch_query = mysqli_query($mysqli, "SELECT * FROM `entity` WHERE `ID` = '$userBranch'");
+			$branch_query = mysqli_query($mysqli, "SELECT * FROM `branch` WHERE `wid` = '$userBranch'");
 			$branch = $branch_query->fetch_assoc();
 		}
 		else
@@ -95,7 +97,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-	<title>Receipt | WH Jewels</title>
+	<title>Receipt | Gadget Works Corporation</title>
 	<link rel="shortcut icon" type="image/x-icon" href="../resource/images/favicon.png" />
 </head>
 <body>
@@ -105,10 +107,10 @@
 				<table style="width:100%;margin-left:auto;margin-right:auto;">
 					<tr>
 						<td>
-							<p style="display:inline;font-size:110%;font-weight:bold;"><img src="../resource/images/wh_jewels_icon.png" alt="Banner Image"/>
-							<?php echo $branch['Name']; ?></p><br>
-							<p style="display:inline;font-size:70%;">Phone: <?php echo $branch['Phone']; ?></p><br>
-							<p style="display:inline;font-size:70%;">Instagram: <?php echo $branch['Username']; ?></p><br>
+							<p style="display:inline;font-size:90%;font-weight:bold;"><img height ="50%" src="../resource/images/Logo-small.png" alt="Banner Image"/>
+							<img height ="30%" src="../resource/images/CompanyTitle.png" alt="Banner Image"/></p><br>
+							<p style="display:inline;font-size:70%;">Phone: <?php echo $branch['contact']; ?></p><br>
+							<p style="display:inline;font-size:70%;">Address: <?php echo $branch['address']; ?></p><br>
 						</td>
 						<td style='text-align:right;'>
 							<p style='display:inline;font-size:20px;font-weight:bold;'>
@@ -116,7 +118,7 @@
 									$type = mysqli_query($mysqli, "SELECT Type FROM particular WHERE particular.Mark = 1 AND Transaction = '$creation' LIMIT 1");
 									$type = mysqli_fetch_row($type);
 									
-									if($type[0] == 1) echo "Receiving Voucher";
+									if($type[0] == 1) echo "Add Inventory Session";
 									else if($type[0] == 2) echo "Borrowing Slip";
 									else if($type[0] == 3) echo "Trust Agreement Receipt";
 									else if($type[0] == 4) echo "Borrowed Items Return";
@@ -195,10 +197,25 @@
 						<td style="width:15%">Category</td>
 						<td style="width:25%">Description</td>
 						<td style="width:10%">Weight</td>
-						<td style="width:10%"><?php if($type[0] == 1) echo "Amount in $"; else echo "Amount in PHP"; ?></td>
+						<td style="width:10%"><?php if($type[0] == 1) echo "Amount in PHP"; else echo "Amount in PHP"; ?></td>
 					</tr>
 					<?php		 
-						$result = mysqli_query($mysqli, "SELECT inventory.ID, Name, Category, Description, Weight, Amount FROM particular, inventory WHERE particular.Transaction = '$creation' AND inventory.ID = particular.Inventory AND particular.Mark > 0");
+						$sqlQuery = @"SELECT 
+									    I.`ID`,
+									    I.`Name`,
+									    C.`Name`,
+									    I.`Description`,
+									    I.`Weight`,
+									    P.`Amount`
+									FROM
+									    `inventory` AS I
+									        LEFT JOIN
+									    `particular` AS P ON P.`Inventory` = I.`ID`
+									        LEFT JOIN
+									    `category` AS C ON C.`ID` = I.`Category`
+									WHERE
+									    P.`Transaction` = '$creation' AND P.`Mark` > 0;";
+						$result = mysqli_query($mysqli, $sqlQuery);
 						//echo("SELECT inventory.ID, Name, Category, Description, Weight, Picture, Amount FROM particular, inventory WHERE particular.Transaction = '$creation' AND inventory.ID = particular.Inventory AND particular.Mark > 0");
 						$path = "value";
 						for($i=0, $total=0; $i < mysqli_num_rows($result); $i++)
@@ -231,7 +248,7 @@
 							echo '<td>'.$row[4].' g</td>';
 							
 							//Amount
-							if($type[0] == 1) { echo '<td>$ '.number_format($row[6],2).'<br>(&#8369 '.number_format(($row[5]*$conversion),2).')</td>'; }
+							if($type[0] == 1) { echo '<td>&#8369  '.number_format($row[5],2).'</td>'; }
 							else echo '<td>'.number_format($row[5],2).'</td>';
 							$total += $row[5];
 							
@@ -243,9 +260,10 @@
 						}
 						else
 						{
+
 							echo "<tr><td colspan=6 style='text-align:right'>No. of Items &nbsp</td><td style='text-align:center;font-weight:bold'>".$i."</td></tr>";
-							if($type[0] == 1) echo "<tr><td colspan=6 style='text-align:right'>Total Bill&nbsp</td><td style='text-align:center;font-weight:bold'>$ ".number_format($total,2)."<br>(&#8369 ".number_format(($total*$conversion),2).")</td></tr>";
-							else echo "<tr><td colspan=6 style='text-align:right'>Total Bill&nbsp</td><td style='text-align:center;font-weight:bold'>".number_format($total,2)."</td></tr>";
+							#if($type[0] == 1) echo "<tr><td colspan=6 style='text-align:right'>Total Bill&nbsp</td><td style='text-align:center;font-weight:bold'>$ ".number_format($total,2)."<br>(&#8369 ".number_format(($total*$conversion),2).")</td></tr>";
+							#else echo "<tr><td colspan=6 style='text-align:right'>Total Bill&nbsp</td><td style='text-align:center;font-weight:bold'>".number_format($total,2)."</td></tr>";
 						}
 					?>
 				</table>
@@ -327,7 +345,7 @@
 					</tr>
 				</table>
 				
-				<p style="font-size:10px"><a href="transactions.php">WH Jewels &reg WH Jewels Inventory Management System</a></p>
+				<p style="font-size:10px"><a href="//transactions.php">Gadget Works Corporation &reg GWC CRM System</a></p>
 			</div>
 		</div>
 	</main>

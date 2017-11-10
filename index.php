@@ -7,10 +7,11 @@
 ?>
 <html>
 	<body>
-		<div>
-			<div>
-				<div class="form-centered-login">
-					<div class="form_title"><h2><img src="../resource/images/GWC-copy.jpg" height="90" alt="Banner Image"/></h2></div>
+		<div class="row">
+		<div class="col-xs-10 col-xs-offset-1 col-sm-8 col-sm-offset-2 col-md-4 col-md-offset-4">
+			<div class="login-panel panel panel-default">
+				<!-- <div class="form-centered-login"> -->
+					<div class="form_title"><img src="/resource/images/CompanyTitle.png" height="70" alt="Banner Image"/></div>
 					<div>
 						<?php
 							require_once("resource/database/hive.php");
@@ -58,12 +59,44 @@
 							</div>
 							<div class="form-group">
 								<div class="col-sm-offset-0 col-sm-12">
-									<button type="submit" class="form_button">Log-In</button>
+									<button type="submit" class="btn btn-primary">Log-In</button>
 								</div>
 							</div>				
 						</form>
 					</div>
 				</div>
+		</div>
+		<div class="form-lower-panel-info">
+			<div class="form_login_toolstrip"  height="10">
+					<div class="col-sm-7"> 
+						<a href="#"><u>Gadget Works Corporation</u></a>. All rights reserved 
+					</div>
+					<?php
+						require_once("resource/database/hive.php");
+                						$systemconfig = mysqli_query($mysqli, "SELECT `particular`,`value` FROM `config`");
+                						$branchid = "branchid";
+                						$test = "Test";
+                						for($i=0, $total=0; $i < mysqli_num_rows($systemconfig); $i++)
+                						{	$systemconfig->data_seek($i);
+	                						$row = $systemconfig->fetch_row();
+	                						if($i >= 0)
+	                							switch($row[0]){
+	                								case "branchid":
+	                									echo "  Branch ID: <strong>".$row[1]."</strong>";
+	                									break;
+	                								case "systemversion":
+	                									echo "  System Version: <strong>".$row[1]."</strong>";
+	                									break;
+	                								case "dbversion":
+	                									echo "  Database Version: <strong>".$row[1]."</strong>";
+	                									break;
+	                								case "application":
+	                									echo "  System Version Name: <strong>".$row[1]."</strong>";
+	                									break;
+	                								default: break;
+	                							}
+                						}
+                	?>
 			</div>
 		</div>
 	</body>

@@ -15,7 +15,7 @@
 			if(!isset($_SESSION['sales']))
 			{
 				$creator = $_SESSION['id'];
-				$new = mysqli_query($mysqli, "INSERT INTO `transaction`(`ID`, `Reference`, `Source`, `Destination`, `Comment`, `Date`, `Mark`, `Creator`, `Type`) VALUES ('', '', '100', '2', '', '$time_now', '2', '$creator', 3)");
+				$new = mysqli_query($mysqli, "INSERT INTO `transaction`( `Reference`, `Source`, `Destination`, `Comment`, `Date`, `Mark`, `Creator`, `Type`) VALUES ('', '100', '2', '', '$time_now', '2', '$creator', 3)");
 				$_SESSION['sales'] = $mysqli->insert_id;
 				$sid = $_SESSION['sales'];
 			}
@@ -23,13 +23,13 @@
 			{
 				$sid = $_SESSION['sales'];		
 				
-				$destination = mysqli_query($mysqli, "SELECT `Destination` FROM transaction WHERE ID = '$sid'");
+				$destination = mysqli_query($mysqli, "SELECT `Destination` FROM `transaction` WHERE `ID` = '$sid'");
 				$destination = mysqli_fetch_row($destination); $destination = $destination[0];
 				
-				$reference = mysqli_query($mysqli, "SELECT `Reference` FROM transaction WHERE ID = '$sid'");
+				$reference = mysqli_query($mysqli, "SELECT `Reference` FROM `transaction` WHERE `ID` = '$sid'");
 				$reference = mysqli_fetch_row($reference); $reference = $reference[0];
 				
-				$comment = mysqli_query($mysqli, "SELECT `Comment` FROM transaction WHERE ID = '$sid'");
+				$comment = mysqli_query($mysqli, "SELECT `Comment` FROM `transaction` WHERE `ID` = '$sid'");
 				$comment = mysqli_fetch_row($comment); $comment = $comment[0];
 			}
 			
@@ -37,8 +37,8 @@
 			if(isset($_GET['delete']))
 			{
 				$inventory = $_GET['delete'];
-				$delete_connection = mysqli_query($mysqli, "UPDATE particular SET Mark = -1 WHERE Transaction = '$sid' AND Inventory = '$inventory'");
-				$reset_inventory = mysqli_query($mysqli, "UPDATE inventory SET Mark = 1 WHERE ID = '$inventory'");
+				$delete_connection = mysqli_query($mysqli, "UPDATE `particular` SET `Mark` = -1 WHERE `Transaction` = '$sid' AND `Inventory` = '$inventory'");
+				$reset_inventory = mysqli_query($mysqli, "UPDATE `inventory` SET `Mark` = 1 WHERE `ID` = '$inventory'");
 				if($delete_connection AND $reset_inventory)
 					$_SESSION['success'] = "iID No. ".$inventory." successfully deleted.";
 				else
@@ -50,7 +50,7 @@
 			if(isset($_GET['pdelete']))
 			{
 				$payment = $_GET['pdelete'];
-				$delete_payment = mysqli_query($mysqli, "UPDATE payment SET Mark = -1 WHERE ID = '$payment'");
+				$delete_payment = mysqli_query($mysqli, "UPDATE `payment` SET `Mark` = -1 WHERE `ID` = '$payment'");
 				if($delete_payment)
 					$_SESSION['success'] = "PID No. ".$payment." successfully deleted.";
 				else
@@ -62,10 +62,10 @@
 			if(isset($_GET['cancel']))
 			{	
 				$inventory = $_GET['cancel'];
-				$delete_connection = mysqli_query($mysqli, "UPDATE particular SET Mark = -1 WHERE Transaction = '$sid' AND Inventory = '$inventory'");
-				$reset_inventory = mysqli_query($mysqli, "UPDATE inventory SET Mark = 1 WHERE ID = '$inventory'");	
-				$delete_transaction = mysqli_query($mysqli, "UPDATE transaction SET Mark = -1 WHERE ID = '$sid'");	
-				$delete_payments = mysqli_query($mysqli, "UPDATE payment SET Mark = -1 WHERE SID = '$sid'");
+				$delete_connection = mysqli_query($mysqli, "UPDATE `particular` SET `Mark` = -1 WHERE `Transaction` = '$sid' AND Inventory = '$inventory'");
+				$reset_inventory = mysqli_query($mysqli, "UPDATE `inventory` SET `Mark` = 1 WHERE `ID` = '$inventory'");	
+				$delete_transaction = mysqli_query($mysqli, "UPDATE `transaction` SET `Mark` = -1 WHERE `ID` = '$sid'");	
+				$delete_payments = mysqli_query($mysqli, "UPDATE `payment` SET `Mark` = -1 WHERE `SID` = '$sid'");
 				unset($_SESSION['sales']);
 				ob_end_clean();
 				header("location:index.php");
@@ -73,13 +73,25 @@
 			
 			if(isset($_GET['finalize']))
 			{			
-				$finalize = mysqli_query($mysqli, "UPDATE particular, inventory, transaction SET transaction.Mark = 1, particular.Mark = 1, inventory.Mark = 3 WHERE transaction.ID = $sid AND particular.Transaction = $sid AND particular.Inventory = inventory.ID AND inventory.Mark > 0 AND particular.Mark > 0");
-				$finalize_payments = mysqli_query($mysqli, "UPDATE payment SET Mark = 1 WHERE Mark = 2 AND SID = '$sid'");
+				$finalize = mysqli_query($mysqli, "UPDATE `particular` AS P,
+											    `inventory` AS I,
+											    `transaction` AS T 
+											SET 
+											    T.`Mark` = 1,
+											    P.`Mark` = 1,
+											    I.`Mark` = 3
+											WHERE
+											    T.`ID` = $sid
+											        AND P.`Transaction` = $sid
+											        AND P.`Inventory` = I.`ID`
+											        AND I.`Mark` > 0
+											        AND P.`Mark` > 0");
+				$finalize_payments = mysqli_query($mysqli, "UPDATE `payment` SET `Mark` = 1 WHERE `Mark` = 2 AND `SID` = '$sid'");
 				if($finalize and $finalize_payments)
 				{
 					unset($_SESSION['sales']);
 					ob_end_clean();
-					header("location:receipt.php?id=".$sid);
+					header("location:pdf-receipt.php?id=".$sid);
 				}
 				else
 				{
@@ -102,9 +114,14 @@
 				$reference = $mysqli->real_escape_string($_POST['reference']);
 				$comment = $mysqli->real_escape_string($_POST['comment']);
 				$update = mysqli_query($mysqli, "UPDATE `transaction` SET `Destination` = '$client', `Reference` = '$reference', `Comment` = '$comment' WHERE `ID` = '$sid'");
-				$update_payments = mysqli_query($mysqli, "UPDATE payment SET Client = '$client' WHERE SID = '$sid'"); 
+				$update_payments = mysqli_query($mysqli, "UPDATE `payment` SET `Client` = '$client' WHERE `SID` = '$sid'"); 
 				
 				$_SESSION['success'] = "Successfully updated receipt details.";
+			}
+			else
+			{
+				$reference = mysqli_query($mysqli, "SELECT `Reference` FROM `transaction` WHERE `ID` = '$sid'");
+				$reference = mysqli_fetch_row($reference); $reference = $reference[0];
 			}
 			
 			//Add Item
@@ -114,8 +131,8 @@
 				$price = $mysqli->real_escape_string($_POST['price']);
 				
 				//Transaction Type: 1-buy, 2-borrow, 3-sell
-				$add_cart = mysqli_query($mysqli, "INSERT INTO `particular`(`ID`, `Transaction`, `Inventory`, `Type`, `Amount`, `Mark`) VALUES ('', '$sid', '$inventory', '3', '$price', 2)");
-				$update_inventory = mysqli_query($mysqli, "UPDATE inventory SET Mark = 2 WHERE ID = '$inventory'");
+				$add_cart = mysqli_query($mysqli, "INSERT INTO `particular`(`Transaction`, `Inventory`, `Type`, `Amount`, `Mark`) VALUES ('$sid', '$inventory', '3', '$price', 2)");
+				$update_inventory = mysqli_query($mysqli, "UPDATE `inventory` SET `Mark` = 2 WHERE `ID` = '$inventory'");
 				
 				$_SESSION['success'] = "Successfully added new item.";
 			}
@@ -128,9 +145,12 @@
 				$amount = $mysqli->real_escape_string($_POST['amount']);
 				$cbank = $mysqli->real_escape_string($_POST['cbank']);
 				$cdate = $mysqli->real_escape_string($_POST['cdate']);
-				
-				$add_pay  = mysqli_query($mysqli, "INSERT INTO `payment`(`ID`, `Type`, `Date`, `Amount`, `CBank`, `CDate`, `Client`, `SID`, `Mark`, `CNum`) 
-								   VALUES ('', '$ptype', '$time_now', '$amount', '$cbank', '$cdate', '$destination', '$sid', '2', '$cnum')");
+				if($cdate == '' || $cdate == ' ' || $cdate == Null || is_null($cdate))
+					$cdate = '0000-00-00 00:00:00';
+				$sqlquery = "INSERT INTO `payment`(`Type`, `Date`, `Amount`, `CBank`, `CDate`, `Client`, `SID`, `Mark`, `CNum`) 
+								   VALUES ('$ptype', '$time_now', '$amount', '$cbank', '$cdate', '$destination', '$sid', '2', '$cnum')";
+				$add_pay  = mysqli_query($mysqli, $sqlquery);
+				#echo $sqlquery;
 				
 				if($add_pay) $_SESSION['success'] = "Successfully added payment.";
 			}

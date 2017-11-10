@@ -14,6 +14,9 @@
   	<link href="../resource/tools/bootstrap-select/dist/css/bootstrap-select.min.css" rel="stylesheet">
 	
 	<!-- myCSS -->
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/datepicker3.css" rel="stylesheet">
+	<link href="css/styles.css" rel="stylesheet">
   	<link href="../resource/graphics/css/clinic_standard.css" rel="stylesheet">
   	
   	<!-- TOOLBAR FILES -->
@@ -30,6 +33,8 @@
 	<link href="../resource/graphics/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 	<link rel="shortcut icon" type="image/x-icon" href="../resource/images/favicon.png" />
 	
+	<script src="js/lumino.glyphs.js"></script>
+
 	<!--CLOCK JAVASCRIPT-->
 	<script type="text/javascript">
 		function updateclock() {

@@ -9,4 +9,3 @@
 	{
 		header("location:index.php");
 	}
-?>
